@@ -1,7 +1,8 @@
 import { Auth } from "../interfaces/auth.interface"
 import { User } from "../interfaces/user.interface"
 import UserModel from "../models/User"
-import { encrypt, verifide } from "../utils/bcryptHandle"
+import { encrypt, verifide } from "../utils/bcrypt.handle"
+import { generateToken } from "../utils/jwt.handle"
 
 export const registerUser = async({email, password, name}:User) =>{
   const checkUser = await UserModel.findOne({email})
@@ -21,6 +22,12 @@ export const  loginUser = async({email, password}:Auth) =>{
   const isCorrect = await verifide(password, passwordHash)
 
   if(!isCorrect) return "PASSWORD_INCORRECT"
-
-  return checkUser
+  
+  /*Generar token de usuario*/
+  const token = generateToken(checkUser.email)
+  const data = {
+    token,
+    user:checkUser
+  }
+  return data
 }
